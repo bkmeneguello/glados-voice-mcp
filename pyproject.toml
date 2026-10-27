@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "glados-voice-mcp"
+version = "0.1.0"
+description = "Warm, shared GLaDOS text-to-speech server with an MCP interface for agents"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+dependencies = [
+    "numpy",
+    "sounddevice",
+    "num2words",
+    "platformdirs",
+    "mcp>=2",
+]
+
+# onnxruntime and onnxruntime-gpu conflict, so exactly one extra must be chosen.
+[project.optional-dependencies]
+cpu = ["onnxruntime"]
+cuda = [
+    "onnxruntime-gpu>=1.31.1,<2",
+    "nvidia-cuda-runtime",
+    "nvidia-cublas",
+    "nvidia-cudnn-cu13",
+    "nvidia-cufft",
+    "nvidia-curand",
+]
+
+[project.scripts]
+glados-voice = "glados_voice.cli:main"
+glados-voice-mcp = "glados_voice.mcp_server:main"
+glados-voice-daemon = "glados_voice.daemon:main"
+
+# The upstream `glados` package (git submodule) is installed as-is, without modification.
+[tool.setuptools]
+packages = ["glados_voice", "glados"]
+
+[tool.setuptools.package-dir]
+glados_voice = "src/glados_voice"
+glados = "third_party/GLaDOS-TTS/glados"
+
+[tool.setuptools.package-data]
+glados = ["models/*.pkl", "models/*.json"]
