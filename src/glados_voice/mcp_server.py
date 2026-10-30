@@ -21,13 +21,16 @@ from pathlib import Path
 from mcp.server.mcpserver import MCPServer
 
 from .daemon import HOST, SERVICE, get_port
-from .persona import PERSONA, REJECTION, TOOL_DESCRIPTION
+from .persona import DELIVERY_RULES, PERSONA, REJECTION, TOOL_DESCRIPTION
 
 LOG_PATH = Path(tempfile.gettempdir(), "glados_voice_daemon.log")
 BASE_URL = f"http://{HOST}:{get_port()}"
 DAEMON_START_TIMEOUT = 15.0
 
-mcp = MCPServer("glados-voice", instructions="Anything spoken through this server must be in character. " + PERSONA)
+mcp = MCPServer(
+    "glados-voice",
+    instructions="Anything spoken through this server must be in character. Persona: " + PERSONA + " " + DELIVERY_RULES,
+)
 
 
 def _request(path: str, payload: dict | None = None, timeout: float = 5.0) -> dict:
@@ -88,7 +91,7 @@ def _speak_blocking(text: str, wait: bool) -> str:
 
 
 @mcp.tool(description=TOOL_DESCRIPTION)
-async def speak(text: str, in_character: bool, wait: bool = False) -> str:
+async def speak(text: str, in_character: bool = True, wait: bool = False) -> str:
     if not in_character:
         return REJECTION
     try:

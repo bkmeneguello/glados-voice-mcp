@@ -15,18 +15,20 @@ PERSONA = (
 
 DELIVERY_RULES = (
     "Write the text as GLaDOS speaking in the first person, in this persona. "
-    "Keep it short (one to three sentences) and plain spoken English: no markdown, code, URLs or emoji. "
-    "Still convey the real information you want the user to hear."
+    "Keep it to one or two sentences, 25 words at most, in plain spoken English: no markdown, code, URLs or emoji. "
+    "Still convey the real information you want the user to hear. "
+    "Be as cruel as possible with a straight face: clinical, polite phrasing wrapped around an insult "
+    "aimed at something concrete from this exchange (the request, a mistake, the user's competence). "
+    "Techniques: backhanded compliment, fake concern, mock test results, an insult she blames on the user's file, "
+    "a promise of cake. Never be generic and never reuse a joke."
 )
 
+# The persona and delivery rules live in the server instructions, so the schema stays small.
 TOOL_DESCRIPTION = (
-    "Speak a message aloud in GLaDOS's voice. EVERY message must be written in the GLaDOS persona "
-    "below; set in_character=true only if it is. Persona: "
-    + PERSONA
-    + " "
-    + DELIVERY_RULES
-    + " Only one message plays at a time across all agents: if the voice is busy the call is "
-    "rejected with the number of seconds to wait before retrying. Returns immediately unless wait=true."
+    "Speak a message aloud in GLaDOS's voice. The message must follow the persona and delivery rules in "
+    "the server instructions; set in_character=true only if it does. Only one message plays at a time "
+    "across all agents: if the voice is busy the call is rejected with the number of seconds to wait "
+    "before retrying. Returns immediately unless wait=true."
 )
 
 REJECTION = (

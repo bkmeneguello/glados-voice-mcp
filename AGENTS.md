@@ -99,8 +99,8 @@ Restart or reload the MCP client so it picks up the new server.
 
 ## How agents must use the `speak` tool
 
-- Every message must be written as GLaDOS speaking in the first person, in the persona described in the tool description, and the call must set `in_character: true`. Otherwise it is rejected.
-- Keep messages short (one to three sentences), plain spoken English: no markdown, code, URLs or emoji.
+- Every message must be written as GLaDOS speaking in the first person, in the persona and delivery rules given in the server instructions, and the call must set `in_character: true` (the default). Otherwise it is rejected.
+- Keep messages short (one or two sentences, 25 words at most), plain spoken English: no markdown, code, URLs or emoji.
 - Only one message plays at a time across all agents. If the reply starts with `BUSY`, wait the stated number of seconds and retry once or twice; do not poll in a tight loop and do not queue.
 - `wait: true` blocks until the speech finishes; the default returns immediately.
 - `stop` cuts off speech for every agent; use it sparingly.
