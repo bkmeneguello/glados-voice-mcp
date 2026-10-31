@@ -18,6 +18,11 @@ HOST = "127.0.0.1"
 DEFAULT_PORT = 18765
 DEFAULT_IDLE_SECONDS = 600.0
 SERVICE = "glados-voice"
+MAX_BODY_BYTES = 64 * 1024
+
+
+class BadRequest(ValueError):
+    """The request body is unusable; reported to the client as HTTP 400."""
 
 
 def get_port() -> int:
@@ -80,11 +85,22 @@ def make_handler(state: State):
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
-            self.wfile.write(body)
+            try:
+                self.wfile.write(body)
+            except OSError:  # the client went away
+                pass
 
         def _body(self) -> dict:
             length = int(self.headers.get("Content-Length") or 0)
-            return json.loads(self.rfile.read(length) or b"{}")
+            if not 0 <= length <= MAX_BODY_BYTES:
+                raise BadRequest("invalid Content-Length")
+            try:
+                data = json.loads(self.rfile.read(length) or b"{}")
+            except ValueError as e:
+                raise BadRequest(f"invalid JSON: {e}") from e
+            if not isinstance(data, dict):
+                raise BadRequest("JSON body must be an object")
+            return data
 
         def _status(self) -> dict:
             idle_in = max(0.0, get_idle_seconds() - (time.monotonic() - state.last_active))
@@ -111,7 +127,7 @@ def make_handler(state: State):
                 if self.path == "/speak":
                     state.touch()
                     data = self._body()
-                    if not state.engine_created.wait(60):
+                    if not state.engine_created.wait(25):  # shorter than the proxy's 30 s request timeout
                         self._send({"error": "engine failed to start"}, 503)
                         return
                     if failure := state.failure():
@@ -136,6 +152,8 @@ def make_handler(state: State):
                     self._send({"stopped": True})
                 else:
                     self._send({"error": "not found"}, 404)
+            except BadRequest as e:
+                self._send({"error": str(e)}, 400)
             except Exception as e:
                 self._send({"error": repr(e)}, 500)
 

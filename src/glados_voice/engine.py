@@ -154,6 +154,7 @@ class VoiceEngine:
             generation, text, requested_at = self._jobs.get()
             try:
                 self._synthesize(generation, text, requested_at)
+                self.error = None
             except Exception as e:
                 self.error = e
             finally:

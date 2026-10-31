@@ -43,7 +43,7 @@ def _request(path: str, payload: dict | None = None, timeout: float = 5.0) -> di
         try:
             return json.loads(e.read())
         except ValueError:
-            raise e
+            raise e from None
 
 
 def _daemon_status() -> dict | None:
@@ -62,15 +62,15 @@ def _spawn_daemon() -> None:
         kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
     else:
         kwargs["start_new_session"] = True
-    log = open(LOG_PATH, "ab")
-    subprocess.Popen(
-        [sys.executable, "-m", "glados_voice.daemon"],
-        cwd=tempfile.gettempdir(),  # neutral cwd so nothing local shadows imports
-        stdin=subprocess.DEVNULL,
-        stdout=log,
-        stderr=log,
-        **kwargs,
-    )
+    with open(LOG_PATH, "ab") as log:  # the child keeps its own inherited handle
+        subprocess.Popen(
+            [sys.executable, "-m", "glados_voice.daemon"],
+            cwd=tempfile.gettempdir(),  # neutral cwd so nothing local shadows imports
+            stdin=subprocess.DEVNULL,
+            stdout=log,
+            stderr=log,
+            **kwargs,
+        )
 
 
 def _ensure_daemon() -> None:

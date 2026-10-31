@@ -61,6 +61,17 @@ def test_rejects_foreign_host_header(port, method, headers):
     assert status == 403
 
 
+@pytest.mark.parametrize("body", [b"{not json", b"[1, 2]", b'"text"'])
+def test_speak_rejects_malformed_body_with_400(port, body):
+    status, data = call(port, "POST", "/speak", JSON, body=body)
+    assert status == 400 and "error" in data
+
+
+def test_speak_rejects_oversized_body_with_400(port):
+    status, _ = call(port, "POST", "/speak", {**JSON, "Content-Length": "999999"}, body=b"{}")
+    assert status == 400
+
+
 def test_accepts_localhost_host_header(port):
     status, _ = call(port, "GET", "/status", {"Host": f"localhost:{port}"})
     assert status == 200
