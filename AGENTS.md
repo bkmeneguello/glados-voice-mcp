@@ -1,6 +1,6 @@
 # Agent instructions: install and configure glados-voice-mcp
 
-You were pointed at this repository to install and configure its MCP server for the user. Follow these steps in order, run the verification at the end, and report what you did. Ask the user before installing system-level software (uv, git, GPU drivers) or editing configuration outside the user's own MCP client config. **Do not clone this repository for a normal install**: `uvx` installs straight from the repository URL without creating a project directory.
+You were pointed at this repository to install and configure its MCP server for the user. Follow these steps in order, run the verification at the end, and report what you did. Ask the user before installing system-level software (uv, git, GPU drivers) or editing configuration outside the user's own MCP client config. **Do not clone this repository for a normal install**: `uvx` installs the `glados-voice-mcp` package from PyPI without creating a project directory.
 
 ## What this is
 
@@ -9,20 +9,19 @@ An MCP stdio server (`glados-voice-mcp`) that speaks text aloud in GLaDOS's voic
 Below, `<spec>` is:
 
 ```
-glados-voice-mcp[cpu] @ git+https://github.com/bkmeneguello/glados-voice-mcp
+glados-voice-mcp[cpu]@latest
 ```
 
-(`[cuda]` instead of `[cpu]` for the GPU, see step 1). To pin a release, append `@<tag>` to the URL.
+(`[cuda]` instead of `[cpu]` for the GPU, see step 1). To pin a release, use `glados-voice-mcp[cpu]==<version>`.
 
 ## Prerequisites
 
 | Need | Check | Notes |
 |---|---|---|
 | uv | `uv --version` | https://docs.astral.sh/uv/ ; uv downloads Python 3.12 by itself when missing |
-| git | `git --version` | uv and pip use it to fetch the repository and its submodule |
 | Audio output | n/a | The daemon plays through the default output device |
 | Disk space | n/a | About 125 MB of models plus a few hundred MB of packages; the `cuda` extra adds about 1.8 GB (NVIDIA libraries and the GPU runtime) |
-| Internet | n/a | github.com and PyPI, for the packages and the first model download |
+| Internet | n/a | PyPI and github.com, for the packages and the first model download |
 
 ## 1. Choose the backend extra
 
@@ -84,7 +83,7 @@ Restart or reload the MCP client so it picks up the new server.
 
 ### Alternatives to uvx
 
-- **Persistent install** (a command on `PATH`, no re-resolution at each launch): `uv tool install "<spec>"` or `pipx install "<spec>"`, then register the command `glados-voice-mcp` with no arguments. Update with `uv tool upgrade glados-voice-mcp`. If the command is not found, run `uv tool update-shell` (or `pipx ensurepath`) and restart the shell.
+- **Persistent install** (a command on `PATH`, no re-resolution at each launch): `uv tool install "glados-voice-mcp[cpu]"` or `pipx install "glados-voice-mcp[cpu]"` (`[cuda]` for the GPU), then register the command `glados-voice-mcp` with no arguments. Update with `uv tool upgrade glados-voice-mcp`. If the command is not found, run `uv tool update-shell` (or `pipx ensurepath`) and restart the shell.
 - **Development from a clone:** `git clone --recurse-submodules https://github.com/bkmeneguello/glados-voice-mcp`, then `uv venv --python 3.12` and `uv pip install ".[cpu]"` inside it. If the clone has no submodules, run `git submodule update --init --recursive`. Reinstall after source changes.
 
 ## 4. Verify

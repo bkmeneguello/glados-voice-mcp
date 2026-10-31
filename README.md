@@ -12,25 +12,25 @@ It builds on [nimaid/GLaDOS-TTS](https://github.com/nimaid/GLaDOS-TTS), included
 
 ## Install
 
-No clone or project directory is needed: [uv](https://docs.astral.sh/uv/) installs straight from this repository (including the submodule). Pick exactly one onnxruntime extra: `cpu` or `cuda` (NVIDIA, CUDA 13 wheels). Replace `https://github.com/bkmeneguello/glados-voice-mcp` with this repository's URL.
+No clone or project directory is needed: [uv](https://docs.astral.sh/uv/) installs the [`glados-voice-mcp`](https://pypi.org/project/glados-voice-mcp/) package from PyPI. Pick exactly one onnxruntime extra: `cpu` or `cuda` (NVIDIA, CUDA 13 wheels).
 
 ```bash
 # 1. Build the environment and download the models once (about 125 MB, stored in your user data dir)
-uvx --from "glados-voice-mcp[cpu] @ git+https://github.com/bkmeneguello/glados-voice-mcp" glados-voice download-models
+uvx --from "glados-voice-mcp[cpu]@latest" glados-voice download-models
 
 # 2. Try it (plays audio)
-uvx --from "glados-voice-mcp[cpu] @ git+https://github.com/bkmeneguello/glados-voice-mcp" glados-voice say "Hello, test subject."
+uvx --from "glados-voice-mcp[cpu]@latest" glados-voice say "Hello, test subject."
 ```
 
-Prefer a persistent command? `uv tool install "glados-voice-mcp[cpu] @ git+https://github.com/bkmeneguello/glados-voice-mcp"` or `pipx install "..."` puts `glados-voice-mcp` on your `PATH`. To develop, clone with `git clone --recurse-submodules https://github.com/bkmeneguello/glados-voice-mcp` and run `uv pip install ".[cpu]"` in a venv.
+Prefer a persistent command? `uv tool install "glados-voice-mcp[cpu]"` or `pipx install "glados-voice-mcp[cpu]"` puts `glados-voice-mcp` on your `PATH`. To develop, clone with `git clone --recurse-submodules https://github.com/bkmeneguello/glados-voice-mcp` and run `uv pip install ".[cpu]"` in a venv.
 
 ## Register the MCP server
 
 ```bash
-claude mcp add glados-voice -- uvx --from "glados-voice-mcp[cpu] @ git+https://github.com/bkmeneguello/glados-voice-mcp" glados-voice-mcp
+claude mcp add glados-voice -- uvx --from "glados-voice-mcp[cpu]@latest" glados-voice-mcp
 ```
 
-For other clients use the command `uvx` with the arguments `--from "glados-voice-mcp[cpu] @ git+https://github.com/bkmeneguello/glados-voice-mcp" glados-voice-mcp`; [`AGENTS.md`](AGENTS.md) has Codex, Gemini and JSON examples.
+For other clients use the command `uvx` with the arguments `--from "glados-voice-mcp[cpu]@latest" glados-voice-mcp`; [`AGENTS.md`](AGENTS.md) has Codex, Gemini and JSON examples.
 
 Tool: `speak(text, in_character, wait=false)`. Empty `text` stops the current speech.
 
