@@ -57,4 +57,8 @@ engine.wait_idle()
 
 ## Credits and license
 
-MIT, see `LICENSE` and `NOTICE.md`. Voice models come from [dnhkng/GlaDOS](https://github.com/dnhkng/GlaDOS) and are downloaded at first use, not stored here.
+The code is MIT, see `LICENSE` and `NOTICE.md` for third-party notices.
+
+- **Voice models:** they come from [dnhkng/GlaDOS](https://github.com/dnhkng/GlaDOS) and are downloaded at first use. They are not stored or distributed in this repository and are not covered by its MIT license. The voice imitates a character and recordings owned by Valve Corporation, so it is for personal, non-commercial fan use only.
+- **Unofficial:** GLaDOS and Portal belong to Valve Corporation; this project is not affiliated with or endorsed by Valve.
+- **`cuda` extra:** it installs proprietary NVIDIA libraries from PyPI under NVIDIA's license terms. The `cpu` extra does not.

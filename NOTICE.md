@@ -32,11 +32,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## Work adapted inside the `glados` package (MIT)
+
+The upstream `glados` package builds on the following projects. Each is MIT licensed; the permission notice above
+applies to them with their own copyright lines:
+
+- DeepPhonemizer (https://github.com/as-ideas/DeepPhonemizer), the basis of `glados/phonemizer.py`.
+  Copyright (c) 2021 Axel Springer News Media & Tech GmbH & Co. KG - Ideas Engineering
+- Piper (https://github.com/rhasspy/piper), the basis of the VITS inference in `glados/tts.py`.
+  Copyright (c) 2022 Michael Hansen
+
+The bundled phoneme dictionary files in `glados/models/*.pkl` appear to derive from the CMU Pronouncing Dictionary
+(CMUdict, BSD-style license, Copyright (C) Carnegie Mellon University).
+
 ## Voice and phonemizer models
 
 The ONNX models are downloaded at first use from the GlaDOS 0.1 release
-(https://github.com/dnhkng/GlaDOS/releases/tag/0.1) and are not redistributed in this repository. They remain under
-their original terms.
+(https://github.com/dnhkng/GlaDOS/releases/tag/0.1). They are not stored or redistributed in this repository, and this
+project makes no claim over them. The voice model imitates the GLaDOS character and its original voice recordings,
+which belong to Valve Corporation; the upstream release states no license for it. It is a fan-made model intended for
+personal, non-commercial use only, and this project's MIT license does not extend to it.
+
+## Runtime dependencies
+
+These are installed from PyPI and are not part of this repository, so their licenses apply to you separately:
+
+- `num2words` is LGPL licensed. It is imported as a library, not bundled or modified.
+- The optional `cuda` extra installs NVIDIA libraries (`nvidia-cuda-runtime`, `nvidia-cublas`, `nvidia-cudnn-cu13`,
+  `nvidia-cufft`, `nvidia-curand`) under NVIDIA's proprietary license terms, which you accept by installing them.
+- The remaining dependencies (`mcp`, `numpy`, `onnxruntime`, `sounddevice`, `platformdirs` and their dependencies) are
+  under permissive licenses (MIT, BSD, Apache-2.0).
 
 ## Trademarks
 
