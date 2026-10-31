@@ -22,11 +22,11 @@ classifiers = [
     "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
 dependencies = [
-    "numpy",
-    "sounddevice",
-    "num2words",
-    "platformdirs",
-    "mcp>=2",
+    "numpy>=1.26,<3",
+    "sounddevice>=0.5,<1",
+    "num2words>=0.5,<1",
+    "platformdirs>=4,<5",
+    "mcp>=2,<3",
 ]
 
 # onnxruntime and onnxruntime-gpu conflict, so exactly one extra must be chosen.
@@ -43,6 +43,12 @@ cuda = [
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
