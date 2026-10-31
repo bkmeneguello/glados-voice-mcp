@@ -10,6 +10,17 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"
 license-files = ["LICENSE", "NOTICE.md"]
+authors = [{ name = "Bruno Meneguello" }]
+keywords = ["mcp", "model-context-protocol", "tts", "text-to-speech", "glados", "voice", "agents"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
 dependencies = [
     "numpy",
     "sounddevice",
@@ -29,6 +40,11 @@ cuda = [
     "nvidia-cufft",
     "nvidia-curand",
 ]
+
+[project.urls]
+Homepage = "https://github.com/bkmeneguello/glados-voice-mcp"
+Repository = "https://github.com/bkmeneguello/glados-voice-mcp"
+Issues = "https://github.com/bkmeneguello/glados-voice-mcp/issues"
 
 [project.scripts]
 glados-voice = "glados_voice.cli:main"

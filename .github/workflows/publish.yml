@@ -1,0 +1,76 @@
+name: Publish
+
+# Trusted Publishing (OIDC): no API tokens are stored. Configure the publisher on PyPI and TestPyPI with
+#   owner bkmeneguello, repository glados-voice-mcp, workflow publish.yml,
+#   environment pypi (PyPI) and testpypi (TestPyPI).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive # the upstream glados package is a git submodule
+      - uses: astral-sh/setup-uv@v6
+      - name: Check the tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          test "v$version" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != pyproject version v$version"; exit 1; }
+      - run: uv build
+      - name: Check the wheel contents
+        run: |
+          python3 - <<'EOF'
+          import glob, zipfile
+          names = zipfile.ZipFile(glob.glob("dist/*.whl")[0]).namelist()
+          for required in ("glados/tts.py", "glados_voice/mcp_server.py"):
+              assert required in names, f"missing {required} in the wheel"
+          assert any(n.endswith("licenses/NOTICE.md") for n in names), "NOTICE.md missing from the wheel"
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish-testpypi:
+    # Manual runs only: Actions > Publish > Run workflow.
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/glados-voice-mcp
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  publish-pypi:
+    # Version tags only (for example v0.1.1).
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/glados-voice-mcp
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
