@@ -24,6 +24,25 @@ jobs:
         run: |
           version=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
           test "v$version" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != pyproject version v$version"; exit 1; }
+      - name: Use a unique dev version for TestPyPI runs
+        # TestPyPI never accepts a file name twice, so every manual run gets its own
+        # version, for example 0.1.0.dev20261031175340. Install it with --prerelease allow.
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          python3 - <<'EOF'
+          import os, re, time
+          sha = os.environ["GITHUB_SHA"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          text = open("pyproject.toml").read()
+          base = re.search(r'^version = "([^"]+)"', text, re.M).group(1)
+          version = base + ".dev" + time.strftime("%Y%m%d%H%M%S", time.gmtime())
+          text = re.sub(r'^version = "[^"]+"', 'version = "' + version + '"', text, count=1, flags=re.M)
+          commit_url = "https://github.com/" + repo + "/commit/" + sha
+          text = text.replace("[project.urls]\n", '[project.urls]\nCommit = "' + commit_url + '"\n', 1)
+          open("pyproject.toml", "w").write(text)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("TestPyPI version `" + version + "` built from commit `" + sha[:7] + "`\n")
+          EOF
       - run: uv build
       - name: Check the wheel contents
         run: |
