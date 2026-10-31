@@ -36,8 +36,14 @@ mcp = MCPServer(
 def _request(path: str, payload: dict | None = None, timeout: float = 5.0) -> dict:
     data = None if payload is None else json.dumps(payload).encode()
     req = urllib.request.Request(BASE_URL + path, data=data, headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read())
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as e:  # keep the daemon's {"error": ...} body
+        try:
+            return json.loads(e.read())
+        except ValueError:
+            raise e
 
 
 def _daemon_status() -> dict | None:
@@ -87,32 +93,29 @@ def _speak_blocking(text: str, wait: bool) -> str:
     if not result["accepted"]:
         seconds = result["retry_after_seconds"]
         return f"BUSY: GLaDOS is already speaking. Retry in about {seconds} seconds."
-    return "spoken" if wait else "queued"
+    if wait:
+        return "spoken"
+    loading = result.get("load_eta_seconds", 0)
+    return f"queued; voice models are loading, audio starts in about {loading} seconds" if loading else "queued"
+
+
+def _stop_blocking() -> str:
+    if not _daemon_status():
+        return "nothing playing (voice daemon not running)"
+    _request("/stop", {})
+    return "stopped"
 
 
 @mcp.tool(description=TOOL_DESCRIPTION)
 async def speak(text: str, in_character: bool = True, wait: bool = False) -> str:
-    if not in_character:
-        return REJECTION
     try:
+        if not text.strip():
+            return await asyncio.to_thread(_stop_blocking)
+        if not in_character:
+            return REJECTION
         return await asyncio.to_thread(_speak_blocking, text, wait)
     except (OSError, RuntimeError, ValueError) as e:
         return f"ERROR: {e}"
-
-
-@mcp.tool()
-async def stop() -> str:
-    """Stop the current speech and clear anything queued (affects every agent)."""
-    if not await asyncio.to_thread(_daemon_status):
-        return "nothing playing (voice daemon not running)"
-    await asyncio.to_thread(_request, "/stop", {})
-    return "stopped"
-
-
-@mcp.tool()
-async def status() -> dict:
-    """Report whether the voice daemon is running, ready, speaking, and when it will shut down."""
-    return await asyncio.to_thread(_daemon_status) or {"running": False}
 
 
 def main() -> None:

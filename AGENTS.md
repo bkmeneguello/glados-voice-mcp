@@ -94,7 +94,7 @@ Restart or reload the MCP client so it picks up the new server.
    uvx --from "<spec>" glados-voice say "Hello, test subject."
    ```
    Expect `Ready in ...s ['CPUExecutionProvider']` (or `CUDAExecutionProvider` first for the GPU) and `Time to first audio: ...ms`; the second figure should be roughly 50 to 400 ms. Ask the user whether they heard the voice.
-2. In the restarted client, confirm the tools `speak`, `stop` and `status` exist and call `status`. Before the first `speak` it reports `{"running": false}`, which is correct.
+2. In the restarted client, confirm the tool `speak` exists.
 3. Call `speak` with `in_character: true` and a short in-character line. The first call returns `queued` after a few seconds and audio starts after the models load (about 5 to 10 seconds the first time). Later calls are fast.
 
 ## How agents must use the `speak` tool
@@ -102,8 +102,9 @@ Restart or reload the MCP client so it picks up the new server.
 - Every message must be written as GLaDOS speaking in the first person, in the persona and delivery rules given in the server instructions, and the call must set `in_character: true` (the default). Otherwise it is rejected.
 - Keep messages short (one or two sentences, 25 words at most), plain spoken English: no markdown, code, URLs or emoji.
 - Only one message plays at a time across all agents. If the reply starts with `BUSY`, wait the stated number of seconds and retry once or twice; do not poll in a tight loop and do not queue.
+- The reply is the status: `queued` (with `voice models are loading, audio starts in about N seconds` while the models load), `BUSY ...`, or `ERROR: voice unavailable: <reason>` when the voice cannot play at all; do not retry an `ERROR` in a loop.
 - `wait: true` blocks until the speech finishes; the default returns immediately.
-- `stop` cuts off speech for every agent; use it sparingly.
+- `speak` with empty `text` cuts off speech for every agent; use it sparingly.
 
 ## Troubleshooting
 
@@ -112,7 +113,7 @@ Restart or reload the MCP client so it picks up the new server.
 - **`ModuleNotFoundError: onnxruntime`:** the extra is missing from `<spec>`; use `[cpu]` or `[cuda]`.
 - **`CUDAExecutionProvider` missing or a CUDA/DLL error:** the spec probably uses `[cpu]`, or the driver is too old. Use `[cuda]`, or fall back to `[cpu]` (do not mix the two in one environment).
 - **Model download fails or checksum mismatch:** check internet access and rerun step 2; a bad file is discarded automatically.
-- **Silent, but no error:** check the default audio output device; `status` shows whether the daemon is `ready` and `speaking`.
+- **Silent, but no error:** check the default audio output device; `http://127.0.0.1:18765/status` shows whether the daemon is `ready` and `speaking`.
 - **Daemon will not start:** read `glados_voice_daemon.log` in the system temp directory (`%TEMP%` on Windows, `$TMPDIR` or `/tmp` elsewhere). A message about the port being unavailable means another process uses it; set `GLADOS_PORT`.
 - **After upgrading:** the old daemon keeps running until it idles out; end the `glados_voice.daemon` process to load the new version immediately.
 

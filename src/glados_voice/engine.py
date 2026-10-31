@@ -241,10 +241,7 @@ class VoiceEngine:
         rate = self._tts.rate if self._tts else 22050
         buffered = (sum(len(a) for a in self._buffer) - self._buffer_offset) / rate
         pending = self._pending_chars / SPEECH_CHARS_PER_SECOND
-        loading = 0.0
-        if not self.ready.is_set() and self._load_started is not None:
-            loading = max(2.0, LOAD_SECONDS_ESTIMATE - (time.perf_counter() - self._load_started))
-        return buffered + pending + loading + 1.0
+        return buffered + pending + self.load_eta() + 1.0
 
     def stop(self) -> None:
         """Drop queued text and silence current playback."""
@@ -267,9 +264,16 @@ class VoiceEngine:
         """Block until everything queued has been synthesized and played."""
         return self._idle.wait(timeout)
 
+    def load_eta(self) -> float:
+        """Estimated seconds until the models are loaded (0 once ready)."""
+        if self.ready.is_set() or self._load_started is None:
+            return 0.0
+        return max(2.0, LOAD_SECONDS_ESTIMATE - (time.perf_counter() - self._load_started))
+
     def status(self) -> dict:
         return {
             "ready": self.ready.is_set(),
+            "load_eta_seconds": round(self.load_eta()),
             "error": repr(self.error) if self.error else None,
             "backend": self.backend,
             "providers": self._tts.session.get_providers() if self._tts else None,

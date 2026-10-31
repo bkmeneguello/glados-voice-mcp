@@ -8,7 +8,7 @@ It builds on [nimaid/GLaDOS-TTS](https://github.com/nimaid/GLaDOS-TTS), included
 - **Fast:** about 100 ms to first audio once the models are loaded; text is split into sentences and the first one plays while the rest is still being synthesized.
 - **Lazy and shared:** the MCP process is a thin proxy. The first `speak` starts one shared daemon (`127.0.0.1:18765`) that loads the models, serves every agent on one audio device, and exits after 10 minutes without requests or speech.
 - **In character:** the persona is part of the tool description and `speak` rejects calls with `in_character=false`. The server cannot verify the style of the text itself.
-- **One voice at a time:** if a message is loading or playing, `speak` returns `BUSY ... Retry in about N seconds` so agents never talk over each other. `stop` cuts speech for everyone.
+- **One voice at a time:** if a message is loading or playing, `speak` returns `BUSY ... Retry in about N seconds` so agents never talk over each other. `speak` with empty text cuts speech for everyone.
 
 ## Install
 
@@ -32,7 +32,7 @@ claude mcp add glados-voice -- uvx --from "glados-voice-mcp[cpu] @ git+https://g
 
 For other clients use the command `uvx` with the arguments `--from "glados-voice-mcp[cpu] @ git+https://github.com/bkmeneguello/glados-voice-mcp" glados-voice-mcp`; [`AGENTS.md`](AGENTS.md) has Codex, Gemini and JSON examples.
 
-Tools: `speak(text, in_character, wait=false)`, `stop()`, `status()`.
+Tool: `speak(text, in_character, wait=false)`. Empty `text` stops the current speech.
 
 ## Configuration (environment variables)
 

@@ -31,6 +31,7 @@ def get_idle_seconds() -> float:
 class State:
     def __init__(self) -> None:
         self.engine = None
+        self.load_error: BaseException | None = None
         self.engine_created = threading.Event()
         self.last_active = time.monotonic()
         self.started = time.time()
@@ -39,10 +40,22 @@ class State:
         self.last_active = time.monotonic()
 
     def load_engine(self) -> None:
-        from .engine import VoiceEngine  # heavy import, after the port is bound
+        try:
+            from .engine import VoiceEngine  # heavy import, after the port is bound
 
-        self.engine = VoiceEngine().start()
-        self.engine_created.set()
+            self.engine = VoiceEngine().start()
+        except BaseException as e:  # surfaced through /speak and /status
+            self.load_error = e
+        finally:
+            self.engine_created.set()
+
+    def failure(self) -> str | None:
+        """Why the voice can never play, or None while it works or is still loading."""
+        if self.load_error:
+            return repr(self.load_error)
+        if self.engine is not None and not self.engine.ready.is_set() and self.engine.error:
+            return repr(self.engine.error)
+        return None
 
 
 def make_handler(state: State):
@@ -65,10 +78,10 @@ def make_handler(state: State):
         def _status(self) -> dict:
             idle_in = max(0.0, get_idle_seconds() - (time.monotonic() - state.last_active))
             info = {"service": SERVICE, "pid": os.getpid(), "idle_shutdown_in_seconds": round(idle_in)}
-            if state.engine_created.is_set():
+            if state.engine is not None:
                 info.update(state.engine.status())
             else:
-                info.update({"ready": False, "speaking": False})
+                info.update({"ready": False, "speaking": False, "error": state.failure()})
             return info
 
         def do_GET(self):
@@ -85,6 +98,9 @@ def make_handler(state: State):
                     if not state.engine_created.wait(60):
                         self._send({"error": "engine failed to start"}, 503)
                         return
+                    if failure := state.failure():
+                        self._send({"error": f"voice unavailable: {failure}"}, 503)
+                        return
                     accepted, retry_after = state.engine.try_speak(str(data.get("text", "")))
                     if not accepted:
                         self._send({"accepted": False, "retry_after_seconds": max(1, round(retry_after))})
@@ -92,10 +108,14 @@ def make_handler(state: State):
                     if data.get("wait"):
                         state.engine.wait_idle()
                     state.touch()
-                    self._send({"accepted": True, "waited": bool(data.get("wait"))})
+                    self._send({
+                        "accepted": True,
+                        "waited": bool(data.get("wait")),
+                        "load_eta_seconds": round(state.engine.load_eta()),
+                    })
                 elif self.path == "/stop":
                     state.touch()
-                    if state.engine_created.is_set():
+                    if state.engine is not None:
                         state.engine.stop()
                     self._send({"stopped": True})
                 else:
