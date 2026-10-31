@@ -30,8 +30,9 @@ jobs:
           python3 - <<'EOF'
           import glob, zipfile
           names = zipfile.ZipFile(glob.glob("dist/*.whl")[0]).namelist()
-          for required in ("glados/tts.py", "glados_voice/mcp_server.py"):
+          for required in ("glados_voice/_glados/tts.py", "glados_voice/_glados/models/phoneme_to_id.pkl", "glados_voice/mcp_server.py"):
               assert required in names, f"missing {required} in the wheel"
+          assert not any(n.startswith("glados/") for n in names), "top-level glados package must not ship"
           assert any(n.endswith("licenses/NOTICE.md") for n in names), "NOTICE.md missing from the wheel"
           EOF
       - uses: actions/upload-artifact@v4

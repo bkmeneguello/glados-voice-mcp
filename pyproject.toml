@@ -51,13 +51,14 @@ glados-voice = "glados_voice.cli:main"
 glados-voice-mcp = "glados_voice.mcp_server:main"
 glados-voice-daemon = "glados_voice.daemon:main"
 
-# The upstream `glados` package (git submodule) is installed as-is, without modification.
+# The upstream `glados` package (git submodule) is installed unmodified under a private name,
+# `glados_voice._glados`, so it cannot clash with the unrelated `glados` project on PyPI.
 [tool.setuptools]
-packages = ["glados_voice", "glados"]
+packages = ["glados_voice", "glados_voice._glados"]
 
 [tool.setuptools.package-dir]
 glados_voice = "src/glados_voice"
-glados = "third_party/GLaDOS-TTS/glados"
+"glados_voice._glados" = "third_party/GLaDOS-TTS/glados"
 
 [tool.setuptools.package-data]
-glados = ["models/*.pkl", "models/*.json"]
+"glados_voice._glados" = ["models/*.pkl", "models/*.json"]

@@ -25,9 +25,9 @@ MODELS = {
 
 def package_models_dir() -> Path:
     """Models directory of the installed upstream package (holds the small bundled files)."""
-    spec = importlib.util.find_spec("glados")
+    spec = importlib.util.find_spec("glados_voice._glados")
     if spec is None or not spec.submodule_search_locations:
-        raise RuntimeError("The upstream 'glados' package is not installed")
+        raise RuntimeError("The upstream GLaDOS package (glados_voice._glados) is not installed")
     return Path(list(spec.submodule_search_locations)[0]) / "models"
 
 
@@ -53,7 +53,7 @@ def use_models_dir() -> None:
     Upstream binds its default config (with a path inside the package) when the module is
     imported, so the bound default is updated instead of editing the submodule.
     """
-    from glados import phonemizer
+    from ._glados import phonemizer
 
     phonemizer.Phonemizer.__init__.__defaults__[0].MODEL_NAME = models_dir() / "phomenizer_en.onnx"
 

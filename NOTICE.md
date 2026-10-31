@@ -6,7 +6,7 @@ here because the installed package contains their code.
 ## GLaDOS-TTS / GlaDOS (MIT)
 
 - `third_party/GLaDOS-TTS` (git submodule): https://github.com/nimaid/GLaDOS-TTS, adapted from
-  https://github.com/dnhkng/GlaDOS. It is installed unmodified as the `glados` package.
+  https://github.com/dnhkng/GlaDOS. It is installed unmodified as the private package `glados_voice._glados`.
 
 ```
 MIT License
@@ -32,17 +32,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## Work adapted inside the `glados` package (MIT)
+## Work adapted inside the upstream `glados` package (MIT)
 
-The upstream `glados` package builds on the following projects. Each is MIT licensed; the permission notice above
+The upstream `glados` package (installed as `glados_voice._glados`) builds on the following projects. Each is MIT licensed; the permission notice above
 applies to them with their own copyright lines:
 
-- DeepPhonemizer (https://github.com/as-ideas/DeepPhonemizer), the basis of `glados/phonemizer.py`.
+- DeepPhonemizer (https://github.com/as-ideas/DeepPhonemizer), the basis of `phonemizer.py`.
   Copyright (c) 2021 Axel Springer News Media & Tech GmbH & Co. KG - Ideas Engineering
-- Piper (https://github.com/rhasspy/piper), the basis of the VITS inference in `glados/tts.py`.
+- Piper (https://github.com/rhasspy/piper), the basis of the VITS inference in `tts.py`.
   Copyright (c) 2022 Michael Hansen
 
-The bundled phoneme dictionary files in `glados/models/*.pkl` appear to derive from the CMU Pronouncing Dictionary
+The bundled phoneme dictionary files in `models/*.pkl` appear to derive from the CMU Pronouncing Dictionary
 (CMUdict, BSD-style license, Copyright (C) Carnegie Mellon University).
 
 ## Voice and phonemizer models

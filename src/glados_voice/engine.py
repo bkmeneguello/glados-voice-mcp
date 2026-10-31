@@ -1,4 +1,4 @@
-"""Warm, streaming wrapper around the ``glados`` TTS module.
+"""Warm, streaming wrapper around the upstream GLaDOS TTS module (``glados_voice._glados``).
 
 Models are loaded once, text is split into sentences, and playback starts as
 soon as the first sentence is synthesized while the rest keeps rendering.
@@ -21,8 +21,7 @@ import sounddevice as sd
 if hasattr(ort, "preload_dlls"):
     ort.preload_dlls()
 
-import glados  # noqa: E402
-
+from . import _glados as glados  # noqa: E402
 from .models import ensure_models, model_file, use_models_dir  # noqa: E402
 
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?;:])\s+|\n+")
