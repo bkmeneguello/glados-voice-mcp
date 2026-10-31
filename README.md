@@ -43,7 +43,7 @@ Tool: `speak(text, in_character, wait=false)`. Empty `text` stops the current sp
 | `GLADOS_BACKEND` | `cpu` | `cpu` (lowest latency for sentences), `cuda`, or `auto` (CPU for short chunks, CUDA for long) |
 | `GLADOS_MODELS_DIR` | OS user data dir | Model files, e.g. `%LOCALAPPDATA%\glados-voice\models` on Windows, `~/.local/share/glados-voice/models` on Linux |
 
-The daemon log is `glados_voice_daemon.log` in the system temp directory. The daemon accepts requests from any local process and has no authentication.
+The daemon log is `glados_voice_daemon.log` in the system temp directory. The daemon accepts requests from any local process and has no authentication, but it rejects browser requests (`Origin` header, non-JSON `Content-Type`, foreign `Host`).
 
 ## Python use
 

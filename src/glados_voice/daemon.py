@@ -28,6 +28,17 @@ def get_idle_seconds() -> float:
     return float(os.environ.get("GLADOS_IDLE_SECONDS", DEFAULT_IDLE_SECONDS))
 
 
+def request_allowed(headers, *, post: bool) -> bool:
+    """Reject browser-driven requests: DNS rebinding (Host), cross-origin pages (Origin) and
+    no-preflight "simple" POSTs (anything but application/json)."""
+    host = (headers.get("Host") or "").rsplit(":", 1)[0]
+    if host not in (HOST, "localhost"):
+        return False
+    if "Origin" in headers:
+        return False
+    return not post or headers.get_content_type() == "application/json"
+
+
 class State:
     def __init__(self) -> None:
         self.engine = None
@@ -85,12 +96,17 @@ def make_handler(state: State):
             return info
 
         def do_GET(self):
-            if self.path == "/status":
+            if not request_allowed(self.headers, post=False):
+                self._send({"error": "forbidden"}, 403)
+            elif self.path == "/status":
                 self._send(self._status())
             else:
                 self._send({"error": "not found"}, 404)
 
         def do_POST(self):
+            if not request_allowed(self.headers, post=True):
+                self._send({"error": "forbidden"}, 403)
+                return
             try:
                 if self.path == "/speak":
                     state.touch()

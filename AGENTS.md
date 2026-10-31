@@ -118,7 +118,7 @@ Restart or reload the MCP client so it picks up the new server.
 
 ## Security notes
 
-The daemon listens on `127.0.0.1` only but has no authentication, so any local process can make it speak. Do not expose the port to a network. Installing from a git URL runs that repository's build; review or pin a tag (`@<tag>`) for anything you do not control.
+The daemon listens on `127.0.0.1` only but has no authentication, so any local process can make it speak. It rejects browser requests (any `Origin` header, a non-JSON `Content-Type` or a `Host` other than `127.0.0.1`/`localhost`), so web pages cannot control it. Do not expose the port to a network. To get a reproducible install, pin a release with `==<version>`.
 
 ## Report back
 

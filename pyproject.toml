@@ -41,6 +41,13 @@ cuda = [
     "nvidia-curand",
 ]
 
+[dependency-groups]
+dev = ["pytest>=8", "ruff"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
 [project.urls]
 Homepage = "https://github.com/bkmeneguello/glados-voice-mcp"
 Repository = "https://github.com/bkmeneguello/glados-voice-mcp"
