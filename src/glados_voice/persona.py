@@ -29,8 +29,8 @@ TOOL_DESCRIPTION = (
     "the server instructions; set in_character=true only if it does. Only one message plays at a time "
     "across all agents: if the voice is busy the call is rejected with the number of seconds to wait "
     "before retrying. Returns immediately unless wait=true; the reply says whether the message was queued "
-    "(and how long the voice models still need to load), is BUSY, or failed with ERROR. Empty text stops the current speech "
-    "for every agent; use it sparingly."
+    "(and how long the voice models still need to load), is BUSY, or failed with ERROR. "
+    "Empty text stops the current speech for every agent; use it sparingly."
 )
 
 REJECTION = (
