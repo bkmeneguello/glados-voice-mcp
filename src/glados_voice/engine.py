@@ -265,12 +265,13 @@ class VoiceEngine:
         return self._idle.wait(timeout)
 
     def load_eta(self) -> float:
-        """Estimated seconds until the models are loaded (0 once ready)."""
-        if self.ready.is_set() or self._load_started is None:
+        """Estimated seconds until the models are loaded (0 once ready or failed)."""
+        if self.ready.is_set() or self.error or self._load_started is None:
             return 0.0
         return max(2.0, LOAD_SECONDS_ESTIMATE - (time.perf_counter() - self._load_started))
 
     def status(self) -> dict:
+        load_failed = self.error is not None and not self.ready.is_set()
         return {
             "ready": self.ready.is_set(),
             "load_eta_seconds": round(self.load_eta()),
@@ -279,5 +280,5 @@ class VoiceEngine:
             "providers": self._tts.session.get_providers() if self._tts else None,
             "load_seconds": self.load_seconds,
             "last_first_audio_ms": self.last_first_audio_ms,
-            "speaking": not self._idle.is_set(),
+            "speaking": not load_failed and not self._idle.is_set(),  # a failed load never plays queued text
         }
